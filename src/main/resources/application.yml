@@ -1,0 +1,96 @@
+spring:
+   application:
+     name: address-service
+   datasource:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        password: girish_007
+        url: jdbc:mysql://localhost:3306/employee_db
+        username: root
+   jpa:    
+        hibernate:                
+            ddl-auto: update  
+        show_sql: true   
+   config:
+        import: optional:configserver:http://localhost:8888 
+        name: addressservice           
+                     
+server:
+  port: 8003
+  servlet:
+    context-path: /addressservice
+eureka:
+  client:
+   serviceUrl:
+    defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: false
+  instance:
+      preferIpAddress: true       
+        
+logging:
+   file:
+    name: logs/app.log      
+   logback:
+    rollingpolicy:
+     file-name-pattern: logs/%d{yyyy-MM, aux}/app.%d{yyyy-MM-dd}.%i.log 
+     max-file-size: 100MB
+     total-size-cap: 10GB
+     max-history: 10
+
+resilience4j:
+    ratelimiter:
+      instances:
+         getAddressRateLimit:
+           limit-for-period: 2
+           limit-refresh-period: 5s
+           timeout-duration: 0             
+    retry:
+       instances:
+         getRetryAddressList:
+           max-attempts: 5
+           wait-duration: 2s
+           retry-exceptions: org.springframework.web.client.ResourceAccessException           
+    circuitbreaker:
+      instances:
+         saveAddressCircuitBreaker:
+           failure-rate-threshold: 80
+           sliding-window-size: 10
+           sliding-window-type: COUNT_BASED
+           minimum-number-of-calls: 5
+           automatic-transition-from-open-to-half-open-enabled: true
+           permitted-number-of-calls-in-half-open-state: 4
+           wait-duration-in-open-state: 1s          
+#    timelimiter:
+#       instances:
+#          updateAddressTimeLimitter:
+#           timeout-duration: 1ms
+#           cancel-running-future: false       
+   
+management:
+  endpoint:
+    shutdown:
+      enabled: false
+    info:
+      enabled: true
+    caches:
+      cache:
+        time-to-live: 10s
+    health:
+      show-details: always
+      show-components: always
+      group:
+        custom:
+         show-details: always
+         roles: admin         
+  endpoints:
+    enabled-by-default: true
+    jmx:
+      exposure:
+        include: health,info
+    web:
+      cors:
+        allowed-methods: GET,POST,PUT,DELETE
+        allowed-origins: http://localhost:8003/addressservice/
+      
+  metrics:
+    use-global-registry: false 
