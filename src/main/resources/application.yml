@@ -12,12 +12,12 @@ spring:
         show_sql: true   
    config:
         import: optional:configserver:http://localhost:8888 
-        name: addressservice           
+        name: address-service           
                      
 server:
   port: 8003
   servlet:
-    context-path: /addressservice
+    context-path: /address-service
 eureka:
   client:
    serviceUrl:
