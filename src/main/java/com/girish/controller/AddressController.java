@@ -49,7 +49,7 @@ private static final Logger logger = LoggerFactory.getLogger(AddressController.c
 	
 	@GetMapping("/getalladdress")	
 	@Retry(name = "getRetryAddressList",fallbackMethod = "getRetryAddressFallBack")
-	public ResponseEntity<List<Address>> getAllEmployees() {
+	public ResponseEntity<List<Address>> getAllAddress() {
 		List<Address> address = addressService.getAllAddressByAllEmployees();		
 		if (address.isEmpty()) {
 		      return new ResponseEntity<>(HttpStatus.NO_CONTENT);
